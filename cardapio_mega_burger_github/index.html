@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#171717">
+  <title>Mega Burger | Cardápio Digital</title>
+  <style>
+    :root{--bg:#111;--panel:#1c1c1c;--yellow:#ffc928;--text:#f8f8f8;--muted:#b8b8b8;--green:#20a45a}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+    header{background:linear-gradient(120deg,#191919,#30220a);padding:28px 18px 24px;text-align:center;border-bottom:1px solid #3b321d}
+    .logo{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;margin:auto;background:var(--yellow);color:#171717;font-size:38px}
+    header h1{margin:12px 0 5px;font-size:30px;letter-spacing:1px} header p{margin:0;color:#ddd}
+    .tag{display:inline-block;margin-top:13px;padding:7px 12px;border:1px solid #66511b;border-radius:30px;color:var(--yellow);font-size:12px}
+    main{max-width:1050px;margin:0 auto;padding:20px 16px 100px}
+    .notice{background:#292316;border:1px solid #5b4819;color:#ffe8a1;border-radius:12px;padding:12px;font-size:13px;line-height:1.5;margin-bottom:20px}
+    .toolbar{display:flex;gap:9px;overflow:auto;padding:3px 0 17px}
+    .filter{border:1px solid #444;background:#202020;color:white;border-radius:30px;padding:10px 16px;white-space:nowrap;cursor:pointer}
+    .filter.active{background:var(--yellow);color:#171717;border-color:var(--yellow);font-weight:bold}
+    h2{font-size:21px;margin:10px 0 15px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+    .card{background:var(--panel);border:1px solid #333;border-radius:16px;overflow:hidden}
+    .card img{width:100%;height:155px;object-fit:cover;display:block;background:#333}
+    .info{padding:14px}.info h3{margin:0 0 7px}.desc{color:var(--muted);font-size:13px;line-height:1.45;min-height:36px}
+    .bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:13px}
+    .price{color:var(--yellow);font-weight:bold;font-size:18px}
+    button{font:inherit}.add{background:var(--yellow);color:#171717;border:0;border-radius:9px;padding:10px 13px;font-weight:bold;cursor:pointer}
+    .cart{margin-top:30px;background:var(--panel);border:1px solid #383838;border-radius:16px;padding:18px}
+    .cart h2{margin-top:0}.empty{color:var(--muted);font-size:14px}
+    .cartline{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #333;font-size:14px}
+    .qty{display:flex;align-items:center;gap:8px}.qty button{background:#333;color:white;border:0;border-radius:6px;width:25px;height:25px;cursor:pointer}
+    .total{display:flex;justify-content:space-between;font-size:19px;font-weight:bold;margin:18px 0}
+    .checkout{width:100%;background:var(--green);color:white;border:0;border-radius:10px;padding:14px;font-weight:bold;cursor:pointer}
+    .checkout:disabled{opacity:.45;cursor:not-allowed}
+    footer{text-align:center;color:#888;font-size:12px;padding:25px}
+    @media(max-width:520px){header h1{font-size:25px}.grid{grid-template-columns:1fr 1fr;gap:10px}.card img{height:115px}.info{padding:10px}.info h3{font-size:14px}.desc{font-size:12px;min-height:48px}.price{font-size:15px}.add{padding:8px;font-size:12px}}
+  </style>
+</head>
+<body>
+<header>
+  <div class="logo">🍔</div>
+  <h1>MEGA BURGER</h1>
+  <p>O sabor que mata sua fome!</p>
+  <span class="tag">CARDÁPIO DIGITAL • EXEMPLO FICTÍCIO</span>
+</header>
+
+<main>
+  <div class="notice"><strong>Projeto de demonstração:</strong> esta lanchonete, os produtos e os preços são fictícios. Antes de usar para um cliente, troque fotos, informações, preços e o número do WhatsApp.</div>
+  <nav class="toolbar" aria-label="Categorias">
+    <button class="filter active" data-cat="Todos">Todos</button>
+    <button class="filter" data-cat="Hambúrgueres">🍔 Hambúrgueres</button>
+    <button class="filter" data-cat="Porções">🍟 Porções</button>
+    <button class="filter" data-cat="Bebidas">🥤 Bebidas</button>
+  </nav>
+
+  <h2 id="sectionTitle">Nosso cardápio</h2>
+  <section class="grid" id="products"></section>
+
+  <section class="cart" id="carrinho">
+    <h2>🛒 Seu pedido</h2>
+    <div id="cartItems"><p class="empty">Seu carrinho está vazio. Adicione algum produto!</p></div>
+    <div class="total"><span>Total</span><span id="total">R$ 0,00</span></div>
+    <button class="checkout" id="checkout" disabled>Enviar pedido pelo WhatsApp</button>
+  </section>
+</main>
+<footer>Mega Burger — cardápio fictício criado para demonstração.</footer>
+
+<script>
+  // EDITE AQUI: coloque o WhatsApp real do estabelecimento, com DDI + DDD + número.
+  // Exemplo de formato: 5511999999999 (não use espaços, +, parênteses ou traços).
+  const WHATSAPP = "5511999999999"; // número de demonstração: troque antes de publicar
+
+  // EDITE AQUI: nomes, descrições, preços e fotos dos produtos.
+  const products = [
+    {id:1,name:"Mega Cheddar",cat:"Hambúrgueres",desc:"Pão brioche, hambúrguer 150g, cheddar cremoso e cebola.",price:29.90,img:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800"},
+    {id:2,name:"X-Bacon",cat:"Hambúrgueres",desc:"Hambúrguer, queijo, bacon crocante, alface e tomate.",price:27.90,img:"https://images.unsplash.com/photo-1553979459-d2229ba7433a?w=800"},
+    {id:3,name:"Burger Clássico",cat:"Hambúrgueres",desc:"Pão, carne artesanal, queijo e molho especial da casa.",price:23.90,img:"https://images.unsplash.com/photo-1550547660-d9450f859349?w=800"},
+    {id:4,name:"Batata Frita",cat:"Porções",desc:"Porção de batatas douradas e crocantes.",price:18.00,img:"https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=800"},
+    {id:5,name:"Anéis de Cebola",cat:"Porções",desc:"Porção crocante para compartilhar.",price:19.00,img:"https://images.unsplash.com/photo-1639024471283-03518883512d?w=800"},
+    {id:6,name:"Refrigerante Lata",cat:"Bebidas",desc:"Lata 350 ml. Consulte os sabores disponíveis.",price:6.00,img:"https://images.unsplash.com/photo-1581636625402-29b2a704ef13?w=800"},
+    {id:7,name:"Milk-shake",cat:"Bebidas",desc:"Milk-shake cremoso de chocolate.",price:14.00,img:"https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=800"}
+  ];
+  const cart = {};
+  const money = n => n.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+  const productsEl = document.getElementById("products");
+
+  function renderProducts(category="Todos"){
+    productsEl.innerHTML="";
+    products.filter(p=>category==="Todos"||p.cat===category).forEach(p=>{
+      const card=document.createElement("article");
+      card.className="card";
+      card.innerHTML=`<img src="${p.img}" alt="${p.name}" onerror="this.src='https://placehold.co/600x400/292929/ffc928?text=Mega+Burger'">
+        <div class="info"><h3>${p.name}</h3><div class="desc">${p.desc}</div>
+        <div class="bottom"><span class="price">${money(p.price)}</span><button class="add" onclick="addToCart(${p.id})">Adicionar</button></div></div>`;
+      productsEl.appendChild(card);
+    });
+  }
+  function addToCart(id){cart[id]=(cart[id]||0)+1;renderCart();}
+  function changeQty(id,delta){cart[id]=(cart[id]||0)+delta;if(cart[id]<=0)delete cart[id];renderCart();}
+  function renderCart(){
+    const el=document.getElementById("cartItems");el.innerHTML="";
+    const ids=Object.keys(cart);
+    if(!ids.length){el.innerHTML='<p class="empty">Seu carrinho está vazio. Adicione algum produto!</p>';}
+    let total=0;
+    ids.forEach(id=>{
+      const p=products.find(x=>x.id===Number(id));const qty=cart[id];total+=p.price*qty;
+      const line=document.createElement("div");line.className="cartline";
+      line.innerHTML=`<span>${p.name}<br><small>${money(p.price)} cada</small></span><span class="qty"><button onclick="changeQty(${p.id},-1)">−</button>${qty}<button onclick="changeQty(${p.id},1)">+</button></span>`;
+      el.appendChild(line);
+    });
+    document.getElementById("total").textContent=money(total);
+    document.getElementById("checkout").disabled=!ids.length;
+  }
+  document.querySelectorAll(".filter").forEach(btn=>btn.addEventListener("click",()=>{
+    document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");renderProducts(btn.dataset.cat);
+    document.getElementById("sectionTitle").textContent=btn.dataset.cat==="Todos"?"Nosso cardápio":btn.dataset.cat;
+  }));
+  document.getElementById("checkout").addEventListener("click",()=>{
+    if(!Object.keys(cart).length)return;
+    const lines=["Olá! Gostaria de fazer este pedido:"];
+    let total=0;
+    Object.keys(cart).forEach(id=>{const p=products.find(x=>x.id===Number(id));lines.push(`${cart[id]}x ${p.name} — ${money(p.price*cart[id])}`);total+=p.price*cart[id];});
+    lines.push(`Total dos produtos: ${money(total)}`);
+    lines.push("Por favor, confirmem a disponibilidade e o valor da entrega.");
+    if(WHATSAPP==="5511999999999"){alert("Este é um número de demonstração. Abra o arquivo index.html e troque WHATSAPP pelo número real da lanchonete.");return;}
+    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(lines.join("\n"))}`,"_blank");
+  });
+  renderProducts();renderCart();
+</script>
+</body>
+</html>
